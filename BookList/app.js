@@ -6,6 +6,8 @@ function Book(title,author,isbn){
 
 function UI(){}
 
+function Storage(){}
+
 UI.prototype.addBookToList = function(book){
     const list = document.getElementById('book-list');
     const row = document.createElement('tr');
@@ -43,16 +45,57 @@ UI.prototype.showAlert = function(msg ,className){
     },3000); 
 }
 
+Storage.prototype.getBooks = function(){
+    let books;
+    if (localStorage.getItem('books') === null){
+        books = [];
+    }else{
+        books = JSON.parse(localStorage.getItem('books')); 
+    }
+    return books
+}
+
+Storage.prototype.displayBook = function(){
+    const books = this.getBooks();
+    books.forEach(book => {
+       const ui = new UI();
+        ui.addBookToList(book);
+    });
+}
+
+Storage.prototype.addBook = function(book){
+    const books = this.getBooks();
+    books.push(book);
+    localStorage.setItem('books',JSON.stringify(books));
+}
+
+Storage.prototype.removeBook = function(isbn){
+    const books = this.getBooks();
+    books.forEach(function(book,index){
+        if(book.isbn === isbn){
+            books.splice(index,1);
+        }
+    localStorage.setItem('books',JSON.stringify(books));
+    });
+}
+
+document.addEventListener('DOMContentLoaded',function(){
+    const storage = new Storage();
+    storage.displayBook();
+});
+
 document.getElementById('book-form').addEventListener('submit',function(e){
     const title= document.getElementById('title').value ,
           author = document.getElementById('author').value,
           isbn = document.getElementById('isbn').value;
     const book = new Book(title,author,isbn);
     const ui = new UI();
+    const storage = new Storage();
     if( title === '' || author === '' || isbn === ''){
         ui.showAlert('Fill in all the fields','error');
     }else{
         ui.addBookToList(book);
+        storage.addBook(book);
         ui.showAlert('Book added','success');
         ui.clearFields();
         e.preventDefault();
@@ -61,8 +104,10 @@ document.getElementById('book-form').addEventListener('submit',function(e){
 
 document.getElementById('book-list').addEventListener('click',function(e){
     const ui = new UI();
+    const storage = new Storage();
     ui.deleteBook(e.target);
-    e.preventDefault();
+    storage.removeBook(e.target.parentElement.previousElementSibling.textContent);
     ui.showAlert('Book removed','success');
+    e.preventDefault();
 });
  
