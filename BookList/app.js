@@ -30,10 +30,11 @@ UI.prototype.showAlert = function(msg ,className){
     div.appendChild(document.createTextNode(msg));
     const container = document.querySelector('.container');
     const form = document.querySelector('#book-form');
+
     container.insertBefore(div,form);
     setTimeout(function(){
-        document.querySelector('.alert').remove;
-    },30000);
+        document.querySelector('.alert').remove();
+    },3000);
 }
 
 document.getElementById('book-form').addEventListener('submit',function(e){
